@@ -1,0 +1,598 @@
+html = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Speaking Masterclass — Ensieh Safariyan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b2447; --navy2:#19376d; --red:#e63946; --teal:#2a9d8f;
+  --cream:#fdf6ec; --gold:#f4a261; --white:#ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:var(--navy)}
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:4vh 5vw;opacity:0;transform:translateX(60px) scale(.98);pointer-events:none;
+  transition:opacity .55s ease,transform .55s ease;overflow-y:auto}
+.slide.active{opacity:1;transform:none;pointer-events:auto}
+.card{background:rgba(255,255,255,.96);border-radius:28px;max-width:880px;width:100%;
+  padding:clamp(24px,4.5vh,52px) clamp(22px,5vw,64px);box-shadow:0 30px 80px rgba(0,0,0,.35);
+  position:relative}
+.kicker{display:inline-block;font-family:'Poppins';font-size:.72rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--red);
+  background:rgba(230,57,70,.1);padding:6px 14px;border-radius:999px;margin-bottom:14px}
+h1{font-family:'Poppins';font-weight:800;color:var(--navy);font-size:clamp(1.7rem,4.6vw,3rem);line-height:1.15;margin-bottom:14px}
+h1 .hl{color:var(--red)}
+h2{font-family:'Poppins';font-weight:700;color:var(--navy);font-size:clamp(1.3rem,3.4vw,2rem);margin-bottom:16px}
+p,li{color:#33415c;font-size:clamp(.95rem,1.9vw,1.13rem);line-height:1.65}
+ul{list-style:none;margin-top:6px}
+ul.check li{padding-left:34px;position:relative;margin:10px 0}
+ul.check li::before{content:"✔";position:absolute;left:0;top:0;width:22px;height:22px;
+  background:var(--teal);color:#fff;border-radius:50%;font-size:.75rem;display:flex;
+  align-items:center;justify-content:center;font-weight:700}
+.num{font-family:'Poppins';font-weight:800;font-size:clamp(2.2rem,6vw,3.6rem);color:var(--red);
+  line-height:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.bad,.good{border-radius:16px;padding:16px 18px;font-size:clamp(.9rem,1.7vw,1.05rem)}
+.bad{background:#ffe8e8;color:#a4161a;border-left:6px solid var(--red)}
+.good{background:#e7f6f4;color:#0b525b;border-left:6px solid var(--teal)}
+.tag{display:inline-block;font-family:'Poppins';font-weight:700;font-size:.68rem;
+  letter-spacing:.15em;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:8px}
+.tag.x{background:#ffd6d6;color:#a4161a}.tag.ok{background:#c8f0ec;color:#0b525b}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.chip{background:#eef3fb;border:2px solid #d7e3f5;color:var(--navy);border-radius:999px;
+  padding:9px 18px;font-weight:700;font-size:clamp(.85rem,1.6vw,1rem);font-family:'Poppins';
+  cursor:pointer;transition:.25s;user-select:none}
+.chip:hover{transform:translateY(-3px);border-color:var(--teal)}
+.chip.used{background:var(--teal);color:#fff;border-color:var(--teal)}
+.pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pill{background:var(--navy);color:#fff;font-family:'Poppins';font-weight:600;
+  padding:10px 18px;border-radius:14px;font-size:clamp(.82rem,1.6vw,.98rem)}
+.pill b{color:var(--gold)}
+/* progress + nav */
+#bar{position:fixed;top:0;left:0;height:5px;background:linear-gradient(90deg,var(--red),var(--gold));
+  width:0%;z-index:50;transition:width .4s}
+#counter{position:fixed;bottom:18px;left:22px;z-index:50;color:#fff;font-family:'Poppins';
+  font-weight:700;font-size:.85rem;opacity:.85;letter-spacing:.1em}
+.navbtn{position:fixed;top:50%;transform:translateY(-50%);z-index:50;width:52px;height:52px;
+  border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:1.4rem;
+  cursor:pointer;backdrop-filter:blur(6px);transition:.25s;display:flex;align-items:center;justify-content:center}
+.navbtn:hover{background:var(--red)}
+#prev{left:16px}#next{right:16px}
+#dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:7px}
+#dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:.3s}
+#dots span.on{background:var(--gold);transform:scale(1.35)}
+/* quiz */
+.q-opt{display:block;width:100%;text-align:left;margin:10px 0;padding:14px 18px;border-radius:14px;
+  border:2px solid #d7e3f5;background:#f6f9fd;font-family:'Nunito';font-weight:700;font-size:1rem;
+  color:var(--navy);cursor:pointer;transition:.2s}
+.q-opt:hover{border-color:var(--navy)}
+.q-opt.right{background:#e7f6f4;border-color:var(--teal);color:#0b525b}
+.q-opt.wrong{background:#ffe8e8;border-color:var(--red);color:#a4161a}
+#quizScore{font-family:'Poppins';font-weight:800;color:var(--red);font-size:1.1rem;margin-top:12px}
+/* timer */
+.timer-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:8px}
+.ring{position:relative;width:200px;height:200px}
+.ring svg{transform:rotate(-90deg)}
+.ring .time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .time b{font-family:'Poppins';font-size:3rem;color:var(--navy)}
+.ring .time small{color:var(--red);font-weight:700;letter-spacing:.15em;font-size:.7rem;text-transform:uppercase}
+.big-btn{font-family:'Poppins';font-weight:700;font-size:1rem;padding:13px 34px;border-radius:999px;
+  border:none;cursor:pointer;transition:.25s;color:#fff}
+#startBtn{background:var(--red)}#resetBtn{background:#8d99ae}
+.big-btn:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.2)}
+.cuecard{background:linear-gradient(135deg,#fff,#fdf0e3);border:2px dashed var(--gold);
+  border-radius:18px;padding:18px 22px;margin-top:6px}
+.cuecard h3{font-family:'Poppins';color:var(--navy);font-size:1.05rem;margin-bottom:8px}
+.cuecard li{margin:5px 0;font-size:.95rem}
+/* matching */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:640px){.match{grid-template-columns:1fr}}
+.m-item{padding:13px 16px;border-radius:14px;font-weight:700;cursor:pointer;transition:.2s;
+  border:2px solid #d7e3f5;background:#f6f9fd;color:var(--navy);text-align:center;font-size:.95rem}
+.m-item.sel{border-color:var(--gold);background:#fff3e0}
+.m-item.done{background:#e7f6f4;border-color:var(--teal);color:#0b525b;pointer-events:none}
+.m-item.fail{border-color:var(--red);background:#ffe8e8}
+.filler-word{display:inline-block;background:#ffe8e8;border:2px solid var(--red);color:#a4161a;
+  border-radius:10px;padding:1px 10px;cursor:pointer;margin:0 3px;font-weight:700;transition:.25s}
+.filler-word.zap{opacity:.25;text-decoration:line-through;transform:scale(.85)}
+.footer-credit{position:fixed;bottom:16px;right:22px;z-index:50;color:rgba(255,255,255,.75);
+  font-family:'Poppins';font-size:.75rem;letter-spacing:.08em}
+.slide-title{background:linear-gradient(135deg,var(--red),#f77f00);display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.slide-title h1{color:#fff;font-size:clamp(2rem,6vw,3.8rem)}
+.slide-title p{color:rgba(255,255,255,.9)}
+.slide-title .instructor{margin-top:26px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);
+  padding:12px 22px;border-radius:999px;color:#fff;font-family:'Poppins';font-weight:600}
+.slide-end{background:linear-gradient(135deg,var(--navy2),var(--navy));flex-direction:column;text-align:center}
+.slide-end .card{background:transparent;box-shadow:none;text-align:center}
+.slide-end h1{color:#fff}.slide-end p{color:rgba(255,255,255,.8)}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div class="deck" id="deck">
+
+<!-- 1 TITLE -->
+<section class="slide slide-title active">
+  <div class="card" style="background:transparent;box-shadow:none">
+    <span class="kicker" style="background:rgba(255,255,255,.15);color:#fff">🎙️ IELTS Preparation Course</span>
+    <h1>IELTS <span style="color:#ffe3e3">Speaking</span><br>Masterclass</h1>
+    <p style="font-size:1.15rem;max-width:520px">Everything you need to know about the Speaking test — structure, scoring criteria, and 12 golden tips.</p>
+    <div class="instructor">Instructor: Ensieh Safariyan</div>
+  </div>
+</section>
+
+<!-- 2 BASICS -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Overview</span>
+    <h2>The Basics</h2>
+    <div class="pill-row">
+      <div class="pill">⏱ <b>11–14</b> minutes</div>
+      <div class="pill">👤 Face-to-face with a certified examiner</div>
+      <div class="pill">💻 Also possible on a video call</div>
+    </div>
+    <p style="margin-top:18px">🎯 <b>The goal:</b> the test measures how well you <b>communicate</b> in English — not whether your ideas are "right".</p>
+  </div>
+</section>
+
+<!-- 3 THREE PARTS -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Structure</span>
+    <h2>The 3 Parts</h2>
+    <div class="grid2">
+      <div class="good"><div class="num">1</div><b>Introduction & Interview</b><br>4–5 minutes</div>
+      <div class="good"><div class="num">2</div><b>Individual Long Turn</b><br>3–4 minutes</div>
+      <div class="good"><div class="num">3</div><b>Discussion</b><br>4–5 minutes</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 PART 1 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Part 1 · 4–5 min</span>
+    <h2>Introduction & Interview</h2>
+    <p>Familiar, everyday topics:</p>
+    <div class="chips">
+      <span class="chip">🏠 Hometown</span><span class="chip">💼 Work</span>
+      <span class="chip">📚 Studies</span><span class="chip">🎨 Hobbies</span>
+      <span class="chip">👨‍👩‍👧 Family</span><span class="chip">🌅 Daily routines</span>
+    </div>
+    <p style="margin-top:18px">✍️ <b>Your job:</b> natural, developed answers — aim for <b>2–3 sentences</b>.</p>
+  </div>
+</section>
+
+<!-- 5 PART 2 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Part 2 · 3–4 min</span>
+    <h2>Individual Long Turn</h2>
+    <ul class="check">
+      <li>You receive a <b>cue card</b> with a topic</li>
+      <li>You get <b>1 minute to prepare</b> — take notes!</li>
+      <li>You speak for <b>1–2 minutes</b> alone</li>
+      <li>The examiner may ask <b>1–2 follow-up questions</b></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 PART 3 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Part 3 · 4–5 min</span>
+    <h2>Discussion</h2>
+    <ul class="check">
+      <li>More <b>abstract and analytical</b> questions</li>
+      <li>Connected to the topic of Part 2</li>
+      <li>You must <b>explain, compare, justify</b> and discuss ideas in depth</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 7 CRITERIA -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Assessment</span>
+    <h2>The 4 Criteria <span style="color:var(--red);font-size:.55em">(each 25%)</span></h2>
+    <div class="grid2">
+      <div class="pill" style="background:var(--red)">1 · Fluency & Coherence</div>
+      <div class="pill" style="background:var(--teal)">2 · Lexical Resource</div>
+      <div class="pill" style="background:var(--navy2)">3 · Grammar Range & Accuracy</div>
+      <div class="pill" style="background:var(--gold);color:var(--navy)">4 · Pronunciation</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 FLUENCY -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Criterion 1 · 25%</span>
+    <h2>Fluency & Coherence</h2>
+    <ul class="check">
+      <li>Natural speed, no long pauses</li>
+      <li>Connect ideas with <b>linking words</b></li>
+      <li>A pause in silence is OK — <b>"um, uh" is NOT</b></li>
+      <li>Develop your answers; don't stop too soon</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 9 VOCAB -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Criterion 2 · 25%</span>
+    <h2>Lexical Resource (Vocabulary)</h2>
+    <ul class="check">
+      <li>Use a <b>wide range</b> of vocabulary</li>
+      <li>Use <b>collocations</b> correctly (<i>do homework, make a decision</i>)</li>
+      <li><b>Paraphrase</b> — don't repeat the same words</li>
+      <li>Use topic-specific words</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 10 GRAMMAR -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Criterion 3 · 25%</span>
+    <h2>Grammatical Range & Accuracy</h2>
+    <ul class="check">
+      <li>Mix tenses: past, present, future</li>
+      <li>Complex sentences: <b>conditionals, relative clauses, passives</b></li>
+      <li>Accuracy matters — but <b>range</b> matters too</li>
+      <li>Self-correct smoothly if you slip</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 11 PRONUNCIATION -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Criterion 4 · 25%</span>
+    <h2>Pronunciation</h2>
+    <ul class="check">
+      <li>It's about being <b>understandable</b> — not having a British accent!</li>
+      <li>Word stress & sentence stress</li>
+      <li>Natural <b>intonation</b> (no flat robot voice!)</li>
+      <li>Clarity beats perfect sounds</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 TIP 1 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #1</span>
+    <h2>Speak Naturally</h2>
+    <div class="bad"><span class="tag x">❌ Weak</span><br>"I like reading."</div>
+    <div class="good" style="margin-top:12px"><span class="tag ok">✅ Band 7+</span><br>"I enjoy reading because it helps me relax after a busy day, and I especially like novels and biographies."</div>
+  </div>
+</section>
+
+<!-- 13 TIP 2 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #2</span>
+    <h2>The Golden Formula</h2>
+    <div class="chips" style="justify-content:center">
+      <span class="chip" style="background:var(--red);color:#fff;border-color:var(--red)">1 · ANSWER</span>
+      <span class="chip" style="background:var(--gold);color:var(--navy);border-color:var(--gold)">2 · REASON</span>
+      <span class="chip" style="background:var(--teal);color:#fff;border-color:var(--teal)">3 · EXAMPLE</span>
+    </div>
+    <p style="margin-top:18px;text-align:center">Every answer = respond directly → explain why → give a detail or personal story.</p>
+  </div>
+</section>
+
+<!-- 14 ACTIVITY 1 QUIZ -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">🎮 Activity 1</span>
+    <h2>Warm-Up Quiz: True or False?</h2>
+    <p id="qText" style="font-weight:700;color:var(--navy);font-size:1.1rem;margin-top:6px"></p>
+    <div id="qOpts"></div>
+    <p id="quizScore"></p>
+  </div>
+</section>
+
+<!-- 15 TIP 3 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #3</span>
+    <h2>Use Your 1-Minute Prep Well</h2>
+    <p>Write only <b>keywords</b> on your cue card:</p>
+    <ul class="check">
+      <li><b>What</b> it was</li>
+      <li><b>When / Where</b></li>
+      <li><b>Details</b> — what happened</li>
+      <li><b>Why</b> it's memorable / how you felt</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 16 ACTIVITY 2 TIMER -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">🎮 Activity 2 · Part 2 Simulator</span>
+    <h2>Your 1 Minute Starts… Now!</h2>
+    <div class="cuecard">
+      <h3>📋 Describe a person who has inspired you.</h3>
+      <ul>
+        <li>who this person is</li>
+        <li>how you know them</li>
+        <li>what they have done</li>
+        <li>and explain why they inspired you</li>
+      </ul>
+    </div>
+    <div class="timer-wrap">
+      <div class="ring">
+        <svg width="200" height="200">
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#e8eef7" stroke-width="12"/>
+          <circle id="ringFg" cx="100" cy="100" r="88" fill="none" stroke="#e63946" stroke-width="12"
+            stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="0"/>
+        </svg>
+        <div class="time"><b id="timeNum">60</b><small>seconds</small></div>
+      </div>
+      <div>
+        <button class="big-btn" id="startBtn">▶ Start Prep</button>
+        <button class="big-btn" id="resetBtn" style="margin-left:10px">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 TIP 4 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #4</span>
+    <h2>Never Stop in the Middle</h2>
+    <div class="good"><span class="tag ok">✅ Smooth ending</span><br>"So that's why this memory is so special to me."</div>
+    <p style="margin-top:16px">Silence hurts your Fluency score — a natural ending doesn't.</p>
+  </div>
+</section>
+
+<!-- 18 TIP 5 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #5</span>
+    <h2>Buy Time Naturally</h2>
+    <ul class="check">
+      <li>"Well, that's an interesting question…"</li>
+      <li>"Let me think for a second…"</li>
+      <li>"I've never thought about it before, but…"</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 19 ACTIVITY 3 KILL FILLERS -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">🎮 Activity 3</span>
+    <h2>Kill the Fillers! 🔫</h2>
+    <p>Tap every filler word to remove it: <span id="fillerScore" style="font-weight:800;color:var(--red)"></span></p>
+    <p id="fillerText" style="margin-top:14px;font-size:clamp(1rem,2.2vw,1.25rem);line-height:2.1"></p>
+  </div>
+</section>
+
+<!-- 20 TIP 7 LINKING -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #7</span>
+    <h2>Useful Linking Words</h2>
+    <ul class="check">
+      <li><b>Adding:</b> Moreover, In addition</li>
+      <li><b>Contrasting:</b> However, Whereas</li>
+      <li><b>Sequencing:</b> First of all, Then, Eventually</li>
+      <li><b>Examples:</b> For instance, A case in point is</li>
+      <li><b>Concluding:</b> All in all</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 21 ACTIVITY 4 MATCHING -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">🎮 Activity 4</span>
+    <h2>Match the Linking Word ⛓</h2>
+    <p>Select a <b>function</b>, then its <b>matching word</b>.</p>
+    <div class="match" id="matchGrid"></div>
+    <p id="matchMsg" style="margin-top:12px;font-weight:800;font-family:'Poppins'"></p>
+  </div>
+</section>
+
+<!-- 22 TIP 8 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #8</span>
+    <h2>Paraphrase, Don't Repeat</h2>
+    <div class="grid2">
+      <div class="bad">like → <b>be fond of / enjoy / be into</b></div>
+      <div class="bad">important → <b>crucial / essential / vital</b></div>
+      <div class="bad">very good → <b>excellent / outstanding</b></div>
+      <div class="bad">think → <b>believe / reckon / in my view</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 23 TIP 9 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #9</span>
+    <h2>Mix Your Tenses 🕐</h2>
+    <div class="good">"I <b>used to hate</b> cooking, but now I really <b>enjoy</b> it, and I think I'<b>ll take</b> a cooking class soon."</div>
+    <p style="margin-top:16px">Past + Present + Future in one answer = Grammatical Range ✅</p>
+  </div>
+</section>
+
+<!-- 24 TIP 10 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #10 · Perfect for Part 3</span>
+    <h2>Master Conditionals</h2>
+    <div class="good">"If governments invested more in public transport, cities <b>would be</b> cleaner."</div>
+    <div class="good" style="margin-top:12px">"If I <b>had</b> the chance, I'<b>d definitely live</b> abroad."</div>
+  </div>
+</section>
+
+<!-- 25 TIP 11 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #11</span>
+    <h2>Don't Memorize Answers! 🚫</h2>
+    <ul class="check">
+      <li>Examiners spot memorized scripts <b>immediately</b></li>
+      <li>Memorized answers → your score <b>drops</b></li>
+      <li>Prepare <b>ideas and vocabulary</b>, not scripts</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 26 TIP 12 -->
+<section class="slide">
+  <div class="card">
+    <span class="kicker">Tip #12</span>
+    <h2>Slow Down! 🐢</h2>
+    <p style="font-size:1.2rem">Fast speaking <b>≠</b> fluent speaking.</p>
+    <div class="good" style="margin-top:14px">Calm, clear speech = <b>higher score</b> ✅</div>
+  </div>
+</section>
+
+<!-- 27 REMEMBER -->
+<section class="slide">
+  <div class="card" style="text-align:center">
+    <div style="font-size:3rem">⭐</div>
+    <h2 style="margin-top:6px">Remember!</h2>
+    <p style="font-size:1.25rem;color:var(--navy);font-weight:700">There are no right or wrong answers.</p>
+    <p style="margin-top:10px">The examiner scores your <b>English</b>, not your opinions.</p>
+  </div>
+</section>
+
+<!-- 28 END -->
+<section class="slide slide-end">
+  <div class="card">
+    <h1>Good luck! 🍀<br><span style="color:var(--gold)">You've got this.</span></h1>
+    <p style="margin-top:16px">Any questions before we start practice?</p>
+    <div class="instructor" style="margin-top:26px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);padding:12px 24px;border-radius:999px;color:#fff;font-family:'Poppins';font-weight:600">Instructor: Ensieh Safariyan</div>
+  </div>
+</section>
+
+</div>
+
+<button class="navbtn" id="prev">‹</button>
+<button class="navbtn" id="next">›</button>
+<div id="counter">1 / 28</div>
+<div id="dots"></div>
+<div class="footer-credit">Ensieh Safariyan · IELTS Speaking</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0;
+const dots=document.getElementById('dots');
+slides.forEach((s,i)=>{const d=document.createElement('span');d.onclick=()=>go(i);dots.appendChild(d);});
+function go(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+  [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===cur));
+  document.getElementById('counter').textContent=(cur+1)+' / '+slides.length;
+  document.getElementById('bar').style.width=((cur+1)/slides.length*100)+'%';
+}
+document.getElementById('next').onclick=()=>go(cur+1);
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')go(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>60)go(cur+(dx<0?1:-1));
+});
+go(0);
+
+/* ---- ACTIVITY 1: QUIZ ---- */
+const quiz=[
+ {q:"The Speaking test lasts 30 minutes.",a:false},
+ {q:"Part 2 gives you 1 minute to prepare.",a:true},
+ {q:"There are 3 parts in the Speaking test.",a:true},
+ {q:"Pronunciation means you need a British accent.",a:false},
+ {q:"Each assessment criterion is worth 25%.",a:true},
+ {q:"Memorized answers help your score.",a:false}
+];
+let qi=0,qScore=0;
+const qText=document.getElementById('qText'),qOpts=document.getElementById('qOpts'),qScoreEl=document.getElementById('quizScore');
+function loadQ(){
+ if(qi>=quiz.length){qText.textContent="🎉 Done!";qOpts.innerHTML="";
+   qScoreEl.textContent="Your score: "+qScore+" / "+quiz.length+(qScore>=5?" — Excellent! 🌟":qScore>=3?" — Good job! 👍":" — Review the slides! 📖");
+   const b=document.createElement('button');b.className='big-btn';b.style.background='var(--teal)';b.textContent='↺ Play Again';
+   b.onclick=()=>{qi=0;qScore=0;qScoreEl.textContent='';loadQ();};qOpts.appendChild(b);return;}
+ qText.textContent=(qi+1)+". "+quiz[qi].q;qOpts.innerHTML="";
+ ["True","False"].forEach(t=>{
+  const b=document.createElement('button');b.className='q-opt';b.textContent=t;
+  b.onclick=()=>{
+   const ok=(t==="True")===quiz[qi].a;
+   b.classList.add(ok?'right':'wrong');if(ok)qScore++;
+   [...qOpts.children].forEach(c=>c.style.pointerEvents='none');
+   setTimeout(()=>{qi++;loadQ();},900);};
+  qOpts.appendChild(b);});
+}
+loadQ();
+
+/* ---- ACTIVITY 2: TIMER ---- */
+const timeNum=document.getElementById('timeNum'),ringFg=document.getElementById('ringFg');
+let tInt=null,tLeft=60;
+function draw(){timeNum.textContent=tLeft;
+ ringFg.style.strokeDashoffset=553*(1-tLeft/60);
+ ringFg.style.stroke=tLeft<=10?'#e63946':'#2a9d8f';}
+document.getElementById('startBtn').onclick=()=>{
+ if(tInt)return;draw();
+ tInt=setInterval(()=>{tLeft--;draw();
+  if(tLeft<=0){clearInterval(tInt);tInt=null;timeNum.textContent='🎤';timeNum.style.fontSize='2rem';
+   setTimeout(()=>{timeNum.textContent='60';timeNum.style.fontSize='3rem';tLeft=60;draw();},2500);}
+ },1000);};
+document.getElementById('resetBtn').onclick=()=>{clearInterval(tInt);tInt=null;tLeft=60;draw();};
+
+/* ---- ACTIVITY 3: KILL FILLERS ---- */
+const sentence=[["Well,","n"],["um,","f"],["I","n"],["like,","f"],["you","n"],["know,","f"],["travelling","n"],["is","n"],["uh,","f"],["really","n"],["fun.","n"]];
+const ft=document.getElementById('fillerText');let killed=0;
+sentence.forEach(([w,t])=>{
+ const sp=document.createElement('span');sp.textContent=w;sp.style.margin='0 3px';
+ if(t==='f'){sp.className='filler-word';sp.onclick=()=>{if(!sp.classList.contains('zap')){sp.classList.add('zap');killed++;
+  document.getElementById('fillerScore').textContent='('+killed+'/3 removed)';
+  if(killed===3)document.getElementById('fillerScore').textContent='(3/3 — Perfect! ✅)';}};}
+ ft.appendChild(sp);});
+
+/* ---- ACTIVITY 4: MATCHING ---- */
+const left=["➕ Adding","↔️ Contrasting","🔢 Sequencing","💡 Giving an example","🏁 Concluding"];
+const right=["However","For instance","Moreover","All in all","First of all"];
+const pairs={"➕ Adding":"Moreover","↔️ Contrasting":"However","🔢 Sequencing":"First of all","💡 Giving an example":"For instance","🏁 Concluding":"All in all"};
+const mg=document.getElementById('matchGrid');let sel=null,done=0;
+[...left.map(t=>({t,g:'L'})),...right.map(t=>({t,g:'R'}))].sort(()=>Math.random()-.5)
+ .forEach(o=>{const d=document.createElement('div');d.className='m-item';d.textContent=o.t;d.dataset.g=o.g;
+  mg.appendChild(d);
+  d.onclick=()=>{
+   if(d.classList.contains('done'))return;
+   if(!sel){sel=d;d.classList.add('sel');return;}
+   if(sel===d){d.classList.remove('sel');sel=null;return;}
+   if(sel.dataset.g!==d.dataset.g&&pairs[sel.textContent]===d.textContent){
+    sel.classList.remove('sel');sel.classList.add('done');d.classList.add('done');sel=null;done++;
+    document.getElementById('matchMsg').textContent='✅ '+done+' / 5 matched!';
+    if(done===5)document.getElementById('matchMsg').textContent='🎉 All matched! Great job!';
+   }else{
+    sel.classList.add('fail');d.classList.add('fail');
+    const s=sel;setTimeout(()=>{s.classList.remove('sel','fail');d.classList.remove('fail');},500);sel=null;}
+  };});
+</script>
+</body>
+</html>"""
+
+path = "/mnt/agents/output/IELTS_Speaking_Masterclass_Ensieh_Safariyan.html"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(html)
+import os
+print(path, os.path.getsize(path), "bytes")
